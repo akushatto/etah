@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etah — City of Heritage & Soul</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+Devanagari:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --saffron: #FF6B1A;
+            --deep-saffron: #E85D04;
+            --gold: #FFB703;
+            --gold-light: #FFDA60;
+            --maroon: #6D0F00;
+            --dark-maroon: #3D0500;
+            --crimson: #9B2335;
+            --cream: #FFF8EC;
+            --warm-white: #FFF3D9;
+            --night: #0D0602;
+            --deep-brown: #1A0A00;
+            --text-light: #FFF0CC;
+            --text-gold: #FFD166;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--night);
+            color: var(--cream);
+            font-family: 'Cormorant Garamond', serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* CUSTOM CURSOR */
+        .cursor {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+            mix-blend-mode: screen;
+        }
+
+        .cursor-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--saffron);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        /* THREE.JS CANVAS */
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* FLOATING PETALS */
+        .petal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .petal {
+            position: absolute;
+            width: 12px;
+            height: 18px;
+            background: radial-gradient(ellipse at 40% 30%, #FFB703 0%, #FF6B1A 60%, #9B2335 100%);
+            border-radius: 50% 10% 50% 10%;
+            opacity: 0;
+            animation: petalFall linear infinite;
+            transform-origin: center;
+        }
+
+        @keyframes petalFall {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px) rotate(0deg) scale(0.5);
+            }
+
+            5% {
+                opacity: 0.7;
+            }
+
+            95% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(110vh) rotate(720deg) translateX(80px) scale(1);
+            }
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-maroon);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 3px;
+        }
+
+        /* ======== NAVBAR ======== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 60px;
+            backdrop-filter: blur(12px);
+            background: linear-gradient(180deg, rgba(13, 6, 2, 0.85) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(255, 183, 3, 0.15);
+        }
+
+        .nav-logo {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.3rem;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(255, 183, 3, 0.6);
+        }
+
+        .nav-logo span {
+            color: var(--saffron);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* ======== HERO ======== */
+        #hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        .hero-mandala {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            opacity: 0.07;
+            animation: rotateMandala 60s linear infinite;
+        }
+
+        .hero-mandala2 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            opacity: 0.05;
+            animation: rotateMandala 40s linear infinite reverse;
+        }
+
+        @keyframes rotateMandala {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hero-tag {
+            font-family: 'Noto Serif Devanagari', serif;
+            font-size: 1rem;
+            color: var(--gold);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.3s;
+        }
+
+        .hero-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 8px;
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--saffron) 40%, var(--gold) 70%, var(--crimson) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 40px rgba(255, 107, 26, 0.4));
+            opacity: 0;
+            animation: fadeUp 1.2s ease forwards 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .hero-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: clamp(1rem, 2.5vw, 1.6rem);
+            color: var(--text-light);
+            margin-top: 20px;
+            letter-spacing: 4px;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.9s;
+        }
+
+        .hero-desc {
+            max-width: 600px;
+            margin: 25px auto 0;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: rgba(255, 240, 204, 0.75);
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 1.2s;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            gap: 20px;
+            margin-top: 45px;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 1.5s;
+        }
+
+        .btn-primary {
+            padding: 14px 38px;
+            background: linear-gradient(135deg, var(--saffron), var(--deep-saffron));
+            color: var(--cream);
+            text-decoration: none;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            border: none;
+            cursor: none;
+            clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 6px 30px rgba(232, 93, 4, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 40px rgba(232, 93, 4, 0.6);
+        }
+
+        .btn-outline {
+            padding: 14px 38px;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            text-decoration: none;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: none;
+            clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+            transition: background 0.3s, color 0.3s, transform 0.3s;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 183, 3, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            animation: bounce 2s ease infinite;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 2s, bounce 2.5s ease infinite 2s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(8px);
+            }
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 50px;
+            background: linear-gradient(var(--gold), transparent);
+        }
+
+        .scroll-text {
+            font-size: 0.7rem;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ======== SECTION SHARED ======== */
+        section {
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--saffron);
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0 50px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+        }
+
+        .divider-gem {
+            width: 10px;
+            height: 10px;
+            background: var(--gold);
+            transform: rotate(45deg);
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        /* ======== STATS STRIP ======== */
+        #stats {
+            background: linear-gradient(90deg, var(--dark-maroon), var(--maroon), var(--dark-maroon));
+            padding: 40px 60px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid rgba(255, 183, 3, 0.3);
+            border-bottom: 1px solid rgba(255, 183, 3, 0.3);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            border-right: 1px solid rgba(255, 183, 3, 0.2);
+            transform: perspective(400px) rotateY(0deg);
+            transition: transform 0.4s;
+        }
+
+        .stat-item:last-child {
+            border-right: none;
+        }
+
+        .stat-item:hover {
+            transform: perspective(400px) rotateY(-5deg) translateZ(10px);
+        }
+
+        .stat-num {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 2.8rem;
+            color: var(--gold);
+            display: block;
+            text-shadow: 0 0 20px rgba(255, 183, 3, 0.5);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        /* ======== HISTORY ======== */
+        #history {
+            padding: 120px 60px;
+            background: radial-gradient(ellipse at 20% 50%, rgba(109, 15, 0, 0.15) 0%, transparent 70%);
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .history-content {}
+
+        .history-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 25px;
+            padding: 25px 0;
+            border-bottom: 1px solid rgba(255, 183, 3, 0.12);
+            transition: transform 0.3s;
+            cursor: default;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(10px);
+        }
+
+        .timeline-year {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.1rem;
+            color: var(--saffron);
+            min-width: 80px;
+            padding-top: 3px;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--gold);
+            border-radius: 50%;
+            margin-top: 8px;
+            flex-shrink: 0;
+            box-shadow: 0 0 8px var(--gold);
+            animation: pulseGold 2s ease infinite;
+        }
+
+        @keyframes pulseGold {
+
+            0%,
+            100% {
+                box-shadow: 0 0 6px var(--gold);
+            }
+
+            50% {
+                box-shadow: 0 0 16px var(--gold), 0 0 30px rgba(255, 183, 3, 0.4);
+            }
+        }
+
+        .timeline-text h4 {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 0.9rem;
+            color: var(--text-gold);
+            margin-bottom: 6px;
+        }
+
+        .timeline-text p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: rgba(255, 240, 204, 0.75);
+        }
+
+        /* 3D HISTORY CARD */
+        .history-visual {
+            perspective: 1000px;
+        }
+
+        .history-card-3d {
+            width: 100%;
+            aspect-ratio: 3/4;
+            transform-style: preserve-3d;
+            border-radius: 3px;
+            position: relative;
+            animation: float3D 6s ease-in-out infinite;
+            background: linear-gradient(135deg, var(--dark-maroon), var(--maroon));
+            border: 1px solid rgba(255, 183, 3, 0.3);
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(255, 107, 26, 0.1);
+        }
+
+        @keyframes float3D {
+
+            0%,
+            100% {
+                transform: rotateX(5deg) rotateY(-8deg) translateY(0px);
+            }
+
+            33% {
+                transform: rotateX(-3deg) rotateY(6deg) translateY(-15px);
+            }
+
+            66% {
+                transform: rotateX(7deg) rotateY(3deg) translateY(-8px);
+            }
+        }
+
+        .card-inner-art {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            gap: 20px;
+        }
+
+        .card-mandala-svg {
+            width: 200px;
+            height: 200px;
+            opacity: 0.3;
+            animation: rotateMandala 20s linear infinite;
+        }
+
+        .card-text-art {
+            font-family: 'Noto Serif Devanagari', serif;
+            font-size: 1.4rem;
+            color: var(--gold);
+            text-align: center;
+            line-height: 2;
+            opacity: 0.9;
+        }
+
+        .card-shine {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%, rgba(255, 183, 3, 0.05) 100%);
+        }
+
+        .card-border-deco {
+            position: absolute;
+            inset: 12px;
+            border: 1px solid rgba(255, 183, 3, 0.2);
+            border-radius: 2px;
+        }
+
+        /* ======== LOCATIONS ======== */
+        #locations {
+            padding: 120px 60px;
+            background: linear-gradient(180deg, transparent 0%, rgba(26, 10, 0, 0.5) 50%, transparent 100%);
+        }
+
+        .locations-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .location-card {
+            perspective: 800px;
+            cursor: none;
+        }
+
+        .location-card-inner {
+            background: linear-gradient(145deg, rgba(26, 10, 0, 0.9), rgba(61, 5, 0, 0.7));
+            border: 1px solid rgba(255, 183, 3, 0.2);
+            border-radius: 4px;
+            padding: 0;
+            overflow: hidden;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .location-card:hover .location-card-inner {
+            transform: rotateX(-5deg) rotateY(5deg) translateZ(20px);
+            box-shadow: -15px 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 107, 26, 0.2);
+            border-color: rgba(255, 183, 3, 0.5);
+        }
+
+        .location-icon-wrap {
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(109, 15, 0, 0.5), rgba(26, 10, 0, 0.9));
+        }
+
+        .location-icon {
+            font-size: 4.5rem;
+            filter: drop-shadow(0 0 20px rgba(255, 183, 3, 0.6));
+        }
+
+        .location-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(255, 107, 26, 0.1) 0%, transparent 70%);
+            animation: glowPulse 3s ease infinite;
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(0.9);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+        }
+
+        .location-body {
+            padding: 28px 25px;
+        }
+
+        .location-name {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .location-desc {
+            font-size: 0.92rem;
+            line-height: 1.75;
+            color: rgba(255, 240, 204, 0.72);
+        }
+
+        .location-tag {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 4px 14px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 107, 26, 0.4);
+            color: var(--saffron);
+            border-radius: 2px;
+        }
+
+        /* shine effect */
+        .location-card-inner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent 270deg, rgba(255, 183, 3, 0.05) 290deg, transparent 310deg);
+            animation: shimmer 4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ======== CULTURE ======== */
+        #culture {
+            padding: 120px 60px;
+        }
+
+        .culture-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .culture-card {
+            display: flex;
+            gap: 25px;
+            padding: 35px;
+            background: linear-gradient(145deg, rgba(20, 6, 0, 0.8), rgba(45, 10, 0, 0.5));
+            border: 1px solid rgba(255, 183, 3, 0.15);
+            border-radius: 4px;
+            transition: transform 0.3s, border-color 0.3s;
+            transform-style: preserve-3d;
+        }
+
+        .culture-card:hover {
+            transform: perspective(600px) rotateX(-3deg) translateZ(10px);
+            border-color: rgba(255, 183, 3, 0.4);
+        }
+
+        .culture-icon {
+            font-size: 2.5rem;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .culture-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1rem;
+            color: var(--text-gold);
+            margin-bottom: 10px;
+        }
+
+        .culture-text {
+            font-size: 0.93rem;
+            line-height: 1.8;
+            color: rgba(255, 240, 204, 0.75);
+        }
+
+        /* ======== QUOTE SECTION ======== */
+        #quote {
+            padding: 100px 60px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(109, 15, 0, 0.2), rgba(13, 6, 2, 0.9), rgba(26, 10, 0, 0.8));
+            border-top: 1px solid rgba(255, 183, 3, 0.1);
+            border-bottom: 1px solid rgba(255, 183, 3, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-bg-text {
+            position: absolute;
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 18vw;
+            color: rgba(255, 183, 3, 0.03);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .quote-marks {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 6rem;
+            color: var(--saffron);
+            line-height: 0.5;
+            display: block;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+
+        .quote-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: clamp(1.3rem, 3vw, 2rem);
+            line-height: 1.6;
+            color: var(--cream);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .quote-author {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        /* ======== GEOGRAPHY ======== */
+        #geography {
+            padding: 120px 60px;
+        }
+
+        .geo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .geo-map-3d {
+            perspective: 1000px;
+        }
+
+        .geo-map-inner {
+            background: linear-gradient(145deg, var(--dark-maroon), #2A0A00);
+            border: 1px solid rgba(255, 183, 3, 0.25);
+            border-radius: 4px;
+            padding: 40px;
+            transform-style: preserve-3d;
+            animation: float3D 7s ease-in-out infinite reverse;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 50px rgba(255, 107, 26, 0.05);
+        }
+
+        .geo-fact {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 183, 3, 0.1);
+        }
+
+        .geo-fact:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .geo-fact-label {
+            font-size: 0.72rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--saffron);
+        }
+
+        .geo-fact-value {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.2rem;
+            color: var(--cream);
+            margin-top: 5px;
+        }
+
+        /* ======== FOOTER ======== */
+        footer {
+            padding: 60px;
+            text-align: center;
+            background: var(--dark-maroon);
+            border-top: 1px solid rgba(255, 183, 3, 0.15);
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-logo {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 2rem;
+            color: var(--gold);
+            letter-spacing: 8px;
+            margin-bottom: 15px;
+        }
+
+        .footer-sub {
+            font-size: 0.85rem;
+            color: rgba(255, 240, 204, 0.5);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .footer-divider {
+            margin: 30px auto;
+            width: 200px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: rgba(255, 240, 204, 0.6);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--gold);
+        }
+
+        .footer-copy {
+            font-size: 0.78rem;
+            color: rgba(255, 240, 204, 0.3);
+            letter-spacing: 2px;
+        }
+
+        /* ANIMATION CLASSES */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* MOVING ORNAMENT */
+        .ornament-ring {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 183, 3, 0.08);
+            z-index: 0;
+            animation: expandFade 8s ease-in-out infinite;
+        }
+
+        @keyframes expandFade {
+            0% {
+                transform: scale(0.3);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:900px) {
+            nav {
+                padding: 15px 25px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            #stats {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 30px 25px;
+            }
+
+            #history,
+            #locations,
+            #culture,
+            #geography {
+                padding: 80px 25px;
+            }
+
+            .history-grid,
+            .culture-grid,
+            .geo-grid {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+
+            .locations-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #quote {
+                padding: 80px 25px;
+            }
+
+            footer {
+                padding: 40px 25px;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- CUSTOM CURSOR -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <!-- THREE.JS CANVAS -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- FLOATING PETALS -->
+    <div class="petal-container" id="petals"></div>
+
+    <!-- ORNAMENT RINGS -->
+    <div class="ornament-ring" style="width:400px;height:400px;top:20%;left:10%;animation-delay:0s;"></div>
+    <div class="ornament-ring" style="width:600px;height:600px;top:50%;right:5%;animation-delay:3s;"></div>
+    <div class="ornament-ring" style="width:300px;height:300px;bottom:20%;left:40%;animation-delay:1.5s;"></div>
+
+    <!-- NAVBAR -->
+    <nav>
+        <div class="nav-logo">E<span>T</span>AH</div>
+        <ul class="nav-links">
+            <li><a href="#history">History</a></li>
+            <li><a href="#locations">Places</a></li>
+            <li><a href="#culture">Culture</a></li>
+            <li><a href="#geography">Geography</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+        <svg class="hero-mandala" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="mg1" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#FFB703" />
+                    <stop offset="100%" stop-color="#9B2335" />
+                </radialGradient>
+            </defs>
+            <circle cx="200" cy="200" r="190" stroke="url(#mg1)" stroke-width="1" />
+            <circle cx="200" cy="200" r="160" stroke="url(#mg1)" stroke-width="0.5" stroke-dasharray="4 4" />
+            <circle cx="200" cy="200" r="130" stroke="url(#mg1)" stroke-width="1" />
+            <circle cx="200" cy="200" r="100" stroke="url(#mg1)" stroke-width="0.5" stroke-dasharray="2 2" />
+            <circle cx="200" cy="200" r="70" stroke="url(#mg1)" stroke-width="1" />
+            <!-- petals -->
+            <g stroke="url(#mg1)" stroke-width="0.7">
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(0,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(30,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(60,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(90,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(120,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(150,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(180,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(210,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(240,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(270,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(300,200,200)" />
+                <ellipse cx="200" cy="110" rx="15" ry="40" transform="rotate(330,200,200)" />
+            </g>
+            <!-- outer diamonds -->
+            <g fill="url(#mg1)" opacity="0.5">
+                <rect x="196" y="4" width="8" height="8" transform="rotate(45,200,8)" />
+                <rect x="196" y="388" width="8" height="8" transform="rotate(45,200,392)" />
+                <rect x="4" y="196" width="8" height="8" transform="rotate(45,8,200)" />
+                <rect x="388" y="196" width="8" height="8" transform="rotate(45,392,200)" />
+            </g>
+        </svg>
+        <svg class="hero-mandala2" viewBox="0 0 400 400" fill="none">
+            <circle cx="200" cy="200" r="190" stroke="#FF6B1A" stroke-width="0.5" stroke-dasharray="3 6" />
+            <circle cx="200" cy="200" r="150" stroke="#FFB703" stroke-width="0.5" stroke-dasharray="1 4" />
+            <circle cx="200" cy="200" r="110" stroke="#FF6B1A" stroke-width="0.5" />
+            <circle cx="200" cy="200" r="70" stroke="#FFB703" stroke-width="0.5" stroke-dasharray="2 3" />
+            <g stroke="#FF6B1A" stroke-width="0.5" opacity="0.8">
+                <line x1="200" y1="10" x2="200" y2="390" />
+                <line x1="10" y1="200" x2="390" y2="200" />
+                <line x1="200" y1="10" x2="200" y2="390" transform="rotate(45,200,200)" />
+                <line x1="200" y1="10" x2="200" y2="390" transform="rotate(22.5,200,200)" />
+                <line x1="200" y1="10" x2="200" y2="390" transform="rotate(67.5,200,200)" />
+            </g>
+        </svg>
+
+        <div class="hero-tag">✦ उत्तर प्रदेश • Uttar Pradesh ✦</div>
+        <h1 class="hero-title">ETAH</h1>
+        <p class="hero-subtitle">City of Heritage, Faith & Timeless Soul</p>
+        <p class="hero-desc">
+            Nestled in the fertile Ganga-Yamuna Doab of western Uttar Pradesh,
+            Etah is a city where ancient history breathes through every brick —
+            from Mughal-era mosques to the sacred ghats of Soron,
+            a hidden gem waiting to be discovered.
+        </p>
+        <div class="hero-cta">
+            <a href="#locations" class="btn-primary">Explore Places</a>
+            <a href="#history" class="btn-outline">Our History</a>
+        </div>
+        <div class="hero-scroll">
+            <div class="scroll-text">Scroll</div>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <div id="stats">
+        <div class="stat-item reveal">
+            <span class="stat-num">207001</span>
+            <div class="stat-label">Pin Code</div>
+        </div>
+        <div class="stat-item reveal">
+            <span class="stat-num">~119K</span>
+            <div class="stat-label">Population</div>
+        </div>
+        <div class="stat-item reveal">
+            <span class="stat-num">207 km</span>
+            <div class="stat-label">From New Delhi</div>
+        </div>
+        <div class="stat-item reveal">
+            <span class="stat-num">170°C</span>
+            <div class="stat-label">Climate Range (4–47°C)</div>
+        </div>
+    </div>
+
+    <!-- HISTORY -->
+    <section id="history">
+        <div class="history-grid">
+            <div class="history-content">
+                <span class="section-label">Ancient to Modern</span>
+                <h2 class="section-title">The Living History of Etah</h2>
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-gem"></div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="history-timeline">
+                    <div class="timeline-item reveal">
+                        <span class="timeline-year">Ancient</span>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-text">
+                            <h4>Aintha — The Origin</h4>
+                            <p>The city was originally called <em>Aintha</em>, named by the ruler of Awagarh. One legend
+                                says a traveller searching for water struck a brick (<em>eint</em>) underground, giving
+                                rise to the name "Einta," which evolved into Etah.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item reveal">
+                        <span class="timeline-year">Medieval</span>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-text">
+                            <h4>Mughal Era & Amir Khusro</h4>
+                            <p>Patiyali, a town in the Etah district, is celebrated as the birthplace of the legendary
+                                poet and musician Amir Khusro — one of the greatest voices of Urdu and Persian
+                                literature. The Mughal influence shaped Etah's architecture, including the Jama Masjid.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="timeline-item reveal">
+                        <span class="timeline-year">1857</span>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-text">
+                            <h4>Sepoy Mutiny — A Glorious Uprising</h4>
+                            <p>Etah stood as a major base of the legendary 1857 Sepoy Mutiny against British rule,
+                                making it an important landmark in India's first war of independence.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item reveal">
+                        <span class="timeline-year">Founded</span>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-text">
+                            <h4>Established by Dil Sukh Rai Bahadur</h4>
+                            <p>The city of Etah was formally established during the reign of Dil Sukh Rai Bahadur, whose
+                                legacy lives on through the grand Kailash Mandir — a temple dedicated to Lord Shiva,
+                                built over 148 years ago.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-visual reveal-right">
+                <div class="history-card-3d">
+                    <div class="card-inner-art">
+                        <svg class="card-mandala-svg" viewBox="0 0 300 300" fill="none">
+                            <circle cx="150" cy="150" r="140" stroke="#FFB703" stroke-width="1" />
+                            <circle cx="150" cy="150" r="110" stroke="#FF6B1A" stroke-width="0.7"
+                                stroke-dasharray="4 4" />
+                            <circle cx="150" cy="150" r="80" stroke="#FFB703" stroke-width="1" />
+                            <circle cx="150" cy="150" r="50" stroke="#FF6B1A" stroke-width="0.7" />
+                            <circle cx="150" cy="150" r="20" stroke="#FFB703" stroke-width="1" />
+                            <g stroke="#FFB703" stroke-width="0.7" opacity="0.7">
+                                <ellipse cx="150" cy="70" rx="12" ry="35" transform="rotate(0,150,150)" />
+                                <ellipse cx="150" cy="70" rx="12" ry="35" transform="rotate(45,150,150)" />
+                                <ellipse cx="150" cy="70" rx="12" ry="35" transform="rotate(90,150,150)" />
+                                <ellipse cx="150" cy="70" rx="12" ry="35" transform="rotate(135,150,150)" />
+                                <ellipse cx="150" cy="70" rx="12" ry="35" transform="rotate(180,150,150)" />
+                                <ellipse cx="150" cy="70" rx="12" ry="35" transform="rotate(225,150,150)" />
+                                <ellipse cx="150" cy="70" rx="12" ry="35" transform="rotate(270,150,150)" />
+                                <ellipse cx="150" cy="70" rx="12" ry="35" transform="rotate(315,150,150)" />
+                            </g>
+                            <line x1="150" y1="0" x2="150" y2="300" stroke="#FF6B1A" stroke-width="0.4" opacity="0.3" />
+                            <line x1="0" y1="150" x2="300" y2="150" stroke="#FF6B1A" stroke-width="0.4" opacity="0.3" />
+                            <line x1="150" y1="0" x2="150" y2="300" stroke="#FF6B1A" stroke-width="0.4" opacity="0.3"
+                                transform="rotate(45,150,150)" />
+                            <line x1="150" y1="0" x2="150" y2="300" stroke="#FF6B1A" stroke-width="0.4" opacity="0.3"
+                                transform="rotate(22.5,150,150)" />
+                            <line x1="150" y1="0" x2="150" y2="300" stroke="#FF6B1A" stroke-width="0.4" opacity="0.3"
+                                transform="rotate(67.5,150,150)" />
+                        </svg>
+                        <div class="card-text-art">
+                            एताह<br />
+                            <span
+                                style="font-size:0.9rem;color:var(--saffron);font-family:'Cormorant Garamond',serif;letter-spacing:4px;">CITY
+                                OF HERITAGE</span><br />
+                            <span
+                                style="font-size:0.7rem;color:rgba(255,240,204,0.5);font-family:'Cormorant Garamond',serif;letter-spacing:3px;">EST.
+                                CENTURIES AGO</span>
+                        </div>
+                    </div>
+                    <div class="card-shine"></div>
+                    <div class="card-border-deco"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUOTE -->
+    <section id="quote">
+        <div class="quote-bg-text">ETAH</div>
+        <span class="quote-marks">"</span>
+        <p class="quote-text reveal">
+            Tucked away in the heart of western Uttar Pradesh lies Etah — a district that quietly carries layers of
+            history, spirituality, rural vibrancy, and cultural treasures. Known as the headquarters of the Awagarh
+            princely state, Etah is a place where India's rustic soul meets timeless heritage.
+        </p>
+        <p class="quote-author reveal">— Etah, A Hidden Gem of Heritage & Faith</p>
+    </section>
+
+    <!-- LOCATIONS -->
+    <section id="locations">
+        <div class="locations-header">
+            <span class="section-label reveal">Places to Discover</span>
+            <h2 class="section-title reveal">Landmarks of Etah</h2>
+            <div class="divider reveal">
+                <div class="divider-line"></div>
+                <div class="divider-gem"></div>
+                <div class="divider-line"></div>
+            </div>
+        </div>
+        <div class="locations-grid">
+
+            <div class="location-card reveal">
+                <div class="location-card-inner">
+                    <div class="location-icon-wrap">
+                        <div class="location-icon">🕌</div>
+                        <div class="location-glow"></div>
+                    </div>
+                    <div class="location-body">
+                        <div class="location-name">Awagarh Fort</div>
+                        <p class="location-desc">A magnificent historical fortification built by the King of Awagarh,
+                            located about 24 km from Etah city. The fort stands as a proud relic of the Awagarh princely
+                            state and draws history enthusiasts from across the region.</p>
+                        <span class="location-tag">🗺 24 km from City</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="location-card reveal">
+                <div class="location-card-inner">
+                    <div class="location-icon-wrap">
+                        <div class="location-icon">🛕</div>
+                        <div class="location-glow"></div>
+                    </div>
+                    <div class="location-body">
+                        <div class="location-name">Kailash Mandir</div>
+                        <p class="location-desc">An ancient temple dedicated to Lord Shiva, built over 148 years ago by
+                            king Dil Sukh Rai Bahadur. Known for its stunning carvings, intricate artwork, and serene
+                            spiritual atmosphere that captivates devotees and tourists alike.</p>
+                        <span class="location-tag">🙏 Religious Site</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="location-card reveal">
+                <div class="location-card-inner">
+                    <div class="location-icon-wrap">
+                        <div class="location-icon">🕌</div>
+                        <div class="location-glow"></div>
+                    </div>
+                    <div class="location-body">
+                        <div class="location-name">Jama Masjid</div>
+                        <p class="location-desc">A magnificent mosque in the heart of Etah city, attributed to the
+                            Mughal era. Known for its intricate carvings, beautiful domes, and fine example of classical
+                            Mughal architecture. Most vibrant during Eid celebrations.</p>
+                        <span class="location-tag">🏛 Mughal Heritage</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="location-card reveal">
+                <div class="location-card-inner">
+                    <div class="location-icon-wrap">
+                        <div class="location-icon">🦅</div>
+                        <div class="location-glow"></div>
+                    </div>
+                    <div class="location-body">
+                        <div class="location-name">Patna Pakshi Vihar</div>
+                        <p class="location-desc">A bird sanctuary within 10 km of Etah, designated by the Government of
+                            UP in 1990. A heavenly haven for nearly 200 species of exotic birds, particularly stunning
+                            in winter months after the monsoon fills its lake.</p>
+                        <span class="location-tag">🌿 Nature Sanctuary</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="location-card reveal">
+                <div class="location-card-inner">
+                    <div class="location-icon-wrap">
+                        <div class="location-icon">🌊</div>
+                        <div class="location-glow"></div>
+                    </div>
+                    <div class="location-body">
+                        <div class="location-name">Soron — Sukar Kshetra</div>
+                        <p class="location-desc">A sacred Hindu pilgrimage centre along the banks of the Ganges, to the
+                            north of Etah. The riverbank of Ganga in Soron, known as Kachhala, is famous for the Shooker
+                            Mahotsava festival drawing thousands of devotees each year.</p>
+                        <span class="location-tag">🙏 Sacred Pilgrimage</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="location-card reveal">
+                <div class="location-card-inner">
+                    <div class="location-icon-wrap">
+                        <div class="location-icon">🏫</div>
+                        <div class="location-glow"></div>
+                    </div>
+                    <div class="location-body">
+                        <div class="location-name">Gurukul Vidyalaya & Yagyashala</div>
+                        <p class="location-desc">Home to one of the world's second largest Yagyashalas — a sacred
+                            fire-ritual complex. This ancient seat of learning preserves Vedic traditions and is a
+                            landmark of spiritual education in the region.</p>
+                        <span class="location-tag">📚 Spiritual Education</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="location-card reveal">
+                <div class="location-card-inner">
+                    <div class="location-icon-wrap">
+                        <div class="location-icon">🕰️</div>
+                        <div class="location-glow"></div>
+                    </div>
+                    <div class="location-body">
+                        <div class="location-name">Ghanta Ghar</div>
+                        <p class="location-desc">The iconic Clock Tower of Etah, a popular gathering landmark in the
+                            city center. Along with Hathi Gate and Thandi Sadak, it forms the heart of old Etah's urban
+                            heritage and social life.</p>
+                        <span class="location-tag">🏙 City Icon</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="location-card reveal">
+                <div class="location-card-inner">
+                    <div class="location-icon-wrap">
+                        <div class="location-icon">🛕</div>
+                        <div class="location-glow"></div>
+                    </div>
+                    <div class="location-body">
+                        <div class="location-name">Kali Temple</div>
+                        <p class="location-desc">Over 250 years old, this is one of the oldest temples in Etah,
+                            dedicated to Goddess Kali. Located on Jalesar Road, it is renowned for its ancient
+                            architecture and the powerful daily prayers and rituals performed within.</p>
+                        <span class="location-tag">🛕 Ancient Temple</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="location-card reveal">
+                <div class="location-card-inner">
+                    <div class="location-icon-wrap">
+                        <div class="location-icon">🌳</div>
+                        <div class="location-glow"></div>
+                    </div>
+                    <div class="location-body">
+                        <div class="location-name">Mehta Park & Padav Maidan</div>
+                        <p class="location-desc">Mehta Park is beloved for its famous tangy samosas and relaxing
+                            greenery. Padav Maidan serves as the grand stage for Dussehra, Ram Lila, and city-wide
+                            festivals, exhibitions, and cultural events throughout the year.</p>
+                        <span class="location-tag">🌿 Leisure & Festivals</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CULTURE -->
+    <section id="culture">
+        <div style="max-width:1200px;margin:0 auto;">
+            <span class="section-label reveal">Traditions & Flavours</span>
+            <h2 class="section-title reveal">Culture of Etah</h2>
+            <div class="divider reveal">
+                <div class="divider-line"></div>
+                <div class="divider-gem"></div>
+                <div class="divider-line"></div>
+            </div>
+            <div class="culture-grid">
+                <div class="culture-card reveal">
+                    <div class="culture-icon">🎭</div>
+                    <div>
+                        <div class="culture-title">Fairs & Festivals</div>
+                        <p class="culture-text">The city comes alive during Ram Lila, Dussehra, Shooker Mahotsava at the
+                            Ganga ghats of Soron, and Mahaveer Jayanti. These celebrations reflect the deep Hindu and
+                            syncretic traditions that have shaped Etah's cultural identity over centuries.</p>
+                    </div>
+                </div>
+                <div class="culture-card reveal">
+                    <div class="culture-icon">🍛</div>
+                    <div>
+                        <div class="culture-title">Cuisine</div>
+                        <p class="culture-text">Etah's food is a blend of Mughlai richness and UP rural warmth. Dum
+                            biryani, mutton korma, seekh kababs, and the famed local samosas of Mehta Park are culinary
+                            treasures. Spiced with Agra's heritage, every bite tells a story.</p>
+                    </div>
+                </div>
+                <div class="culture-card reveal">
+                    <div class="culture-icon">🎵</div>
+                    <div>
+                        <div class="culture-title">Amir Khusro's Legacy</div>
+                        <p class="culture-text">Born in Patiyali, Etah, Amir Khusro is considered among the greatest
+                            poets of Urdu and Persian — inventor of the sitar, pioneer of qawwali, and the voice that
+                            bridged cultures. Etah is the sacred birthplace of this immortal artiste.</p>
+                    </div>
+                </div>
+                <div class="culture-card reveal">
+                    <div class="culture-icon">🌾</div>
+                    <div>
+                        <div class="culture-title">Agriculture & Doab Fertility</div>
+                        <p class="culture-text">Etah sits on the fertile Ganga-Yamuna Doab, irrigated by the Upper and
+                            Lower Ganges canals. Wheat, cotton, sugarcane, bajra, jowar, barley, and maize thrive here.
+                            Agriculture remains the beating heart of the district's economy and identity.</p>
+                    </div>
+                </div>
+                <div class="culture-card reveal">
+                    <div class="culture-icon">🏺</div>
+                    <div>
+                        <div class="culture-title">Crafts & Jalesar Brass</div>
+                        <p class="culture-text">The town of Jalesar in the Etah district is renowned across India for
+                            its exquisite brass and bell-metal handicrafts. These traditional artisans have passed down
+                            their craft across generations, creating beautiful idols, utensils, and decorative works.
+                        </p>
+                    </div>
+                </div>
+                <div class="culture-card reveal">
+                    <div class="culture-icon">📖</div>
+                    <div>
+                        <div class="culture-title">Education & Learning</div>
+                        <p class="culture-text">Etah hosts several colleges affiliated with Dr. B.R. Ambedkar
+                            University, Agra. The Gurukul Vidyalaya continues Vedic educational traditions while modern
+                            institutions keep the district connected to contemporary learning and progress.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GEOGRAPHY -->
+    <section id="geography">
+        <div class="geo-grid">
+            <div>
+                <span class="section-label reveal">Location & Landscape</span>
+                <h2 class="section-title reveal">Where Etah Stands</h2>
+                <div class="divider reveal">
+                    <div class="divider-line"></div>
+                    <div class="divider-gem"></div>
+                    <div class="divider-line"></div>
+                </div>
+                <p class="reveal"
+                    style="font-size:1.05rem;line-height:1.9;color:rgba(255,240,204,0.78);margin-bottom:30px;">
+                    Etah lies in western Uttar Pradesh, positioned strategically midway on the Delhi–Kanpur highway.
+                    Situated about 40 km southwest of the Ganges River and 72 km northeast of Agra, it occupies the
+                    fertile alluvial plains of the Ganga-Yamuna Doab. The district is surrounded by Firozabad, Aligarh,
+                    Kasganj, Badaun, and Farrukhabad.
+                </p>
+                <p class="reveal" style="font-size:1.05rem;line-height:1.9;color:rgba(255,240,204,0.78);">
+                    The Yamuna Expressway runs close by, placing Etah within a comfortable 3-hour drive (207 km) from
+                    New Delhi. The region is also well-linked to Agra, Vrindavan, and Mathura via NH-91 and the Grand
+                    Trunk Road.
+                </p>
+            </div>
+            <div class="geo-map-3d reveal-right">
+                <div class="geo-map-inner">
+                    <div class="geo-fact">
+                        <div class="geo-fact-label">State</div>
+                        <div class="geo-fact-value">Uttar Pradesh, India</div>
+                    </div>
+                    <div class="geo-fact">
+                        <div class="geo-fact-label">Division</div>
+                        <div class="geo-fact-value">Aligarh Division</div>
+                    </div>
+                    <div class="geo-fact">
+                        <div class="geo-fact-label">Elevation</div>
+                        <div class="geo-fact-value">557 ft (170 m) ASL</div>
+                    </div>
+                    <div class="geo-fact">
+                        <div class="geo-fact-label">From New Delhi</div>
+                        <div class="geo-fact-value">207 km · ~3 Hours</div>
+                    </div>
+                    <div class="geo-fact">
+                        <div class="geo-fact-label">From Agra</div>
+                        <div class="geo-fact-value">72 km Northeast</div>
+                    </div>
+                    <div class="geo-fact">
+                        <div class="geo-fact-label">River</div>
+                        <div class="geo-fact-value">Kali Nadi & Ganga Basin</div>
+                    </div>
+                    <div class="geo-fact">
+                        <div class="geo-fact-label">Best Time to Visit</div>
+                        <div class="geo-fact-value">October to March</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-logo">ETAH</div>
+        <div class="footer-sub">City of Heritage · Uttar Pradesh · India</div>
+        <div class="footer-divider"></div>
+        <ul class="footer-links">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#history">History</a></li>
+            <li><a href="#locations">Places</a></li>
+            <li><a href="#culture">Culture</a></li>
+            <li><a href="#geography">Geography</a></li>
+        </ul>
+        <div class="footer-copy">© 2025 Etah City · Uttar Pradesh, India · एताह</div>
+    </footer>
+
+    <!-- THREE.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ===== CUSTOM CURSOR =====
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursorDot');
+        let mx = 0, my = 0, cx = 0, cy = 0;
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursorDot.style.left = mx + 'px'; cursorDot.style.top = my + 'px'; });
+        function animCursor() { cx += (mx - cx) * 0.12; cy += (my - cy) * 0.12; cursor.style.left = cx + 'px'; cursor.style.top = cy + 'px'; requestAnimationFrame(animCursor); }
+        animCursor();
+        document.querySelectorAll('a,button,.location-card,.culture-card,.timeline-item').forEach(el => {
+            el.addEventListener('mouseenter', () => { cursor.style.width = '40px'; cursor.style.height = '40px'; cursor.style.background = 'rgba(255,183,3,0.15)'; });
+            el.addEventListener('mouseleave', () => { cursor.style.width = '16px'; cursor.style.height = '16px'; cursor.style.background = 'transparent'; });
+        });
+
+        // ===== PETALS =====
+        const petalContainer = document.getElementById('petals');
+        function createPetal() {
+            const p = document.createElement('div');
+            p.className = 'petal';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDuration = (8 + Math.random() * 12) + 's';
+            p.style.animationDelay = (Math.random() * 5) + 's';
+            p.style.width = (8 + Math.random() * 10) + 'px';
+            p.style.height = (12 + Math.random() * 14) + 'px';
+            p.style.transform = `rotate(${Math.random() * 360}deg)`;
+            // vary colors
+            const hue = Math.random();
+            if (hue < 0.33) p.style.background = 'radial-gradient(ellipse,#FFB703,#FF6B1A)';
+            else if (hue < 0.66) p.style.background = 'radial-gradient(ellipse,#FF6B1A,#9B2335)';
+            else p.style.background = 'radial-gradient(ellipse,#FFDA60,#FFB703)';
+            petalContainer.appendChild(p);
+            setTimeout(() => p.remove(), 20000);
+        }
+        setInterval(createPetal, 400);
+        for (let i = 0; i < 15; i++) setTimeout(createPetal, i * 200);
+
+        // ===== THREE.JS PARTICLE SCENE =====
+        const canvas = document.getElementById('three-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 30;
+
+        // Particle field
+        const particleCount = 1800;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        const palette = [
+            new THREE.Color('#FFB703'),
+            new THREE.Color('#FF6B1A'),
+            new THREE.Color('#9B2335'),
+            new THREE.Color('#FFD166'),
+            new THREE.Color('#E85D04'),
+        ];
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 120;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 80;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 60;
+            const c = palette[Math.floor(Math.random() * palette.length)];
+            colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+            sizes[i] = Math.random() * 2.5 + 0.3;
+        }
+
+        const pgeo = new THREE.BufferGeometry();
+        pgeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        pgeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        pgeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        const pmat = new THREE.PointsMaterial({
+            size: 0.3, vertexColors: true, transparent: true, opacity: 0.7,
+            sizeAttenuation: true
+        });
+        const particles = new THREE.Points(pgeo, pmat);
+        scene.add(particles);
+
+        // Floating geometric rings
+        function makeRing(r, color, tilt, z) {
+            const g = new THREE.TorusGeometry(r, 0.05, 8, 80);
+            const m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12, wireframe: false });
+            const ring = new THREE.Mesh(g, m);
+            ring.rotation.x = tilt;
+            ring.position.z = z;
+            return ring;
+        }
+        const rings = [
+            makeRing(18, 0xFFB703, 0.4, -10),
+            makeRing(12, 0xFF6B1A, -0.3, -5),
+            makeRing(25, 0x9B2335, 0.7, -20),
+            makeRing(8, 0xFFD166, 0.1, 0),
+        ];
+        rings.forEach(r => scene.add(r));
+
+        // Mouse parallax
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', e => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        // Scroll
+        let scrollY = 0;
+        window.addEventListener('scroll', () => { scrollY = window.scrollY; });
+
+        // Animate
+        let t = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            t += 0.004;
+
+            particles.rotation.y = t * 0.08 + mouseX * 0.05;
+            particles.rotation.x = Math.sin(t * 0.3) * 0.1 + mouseY * 0.03;
+
+            rings[0].rotation.z = t * 0.15;
+            rings[1].rotation.z = -t * 0.1;
+            rings[2].rotation.y = t * 0.07;
+            rings[3].rotation.x = t * 0.2;
+
+            // Breathe
+            const bScale = 1 + Math.sin(t) * 0.03;
+            rings.forEach(r => r.scale.setScalar(bScale));
+
+            camera.position.x += (mouseX * 3 - camera.position.x) * 0.02;
+            camera.position.y += (-mouseY * 2 - camera.position.y) * 0.02;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // ===== SCROLL REVEAL =====
+        const revealEls = document.querySelectorAll('.reveal,.reveal-left,.reveal-right');
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+        }, { threshold: 0.12 });
+        revealEls.forEach(el => io.observe(el));
+
+        // ===== 3D CARD TILT (location cards) =====
+        document.querySelectorAll('.location-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                const inner = card.querySelector('.location-card-inner');
+                inner.style.transform = `rotateY(${x * 18}deg) rotateX(${-y * 12}deg) translateZ(20px)`;
+                inner.style.boxShadow = `${-x * 20}px ${y * 20}px 50px rgba(0,0,0,0.6), 0 0 30px rgba(255,107,26,0.2)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                const inner = card.querySelector('.location-card-inner');
+                inner.style.transform = '';
+                inner.style.boxShadow = '';
+            });
+        });
+    </script>
+</body>
+
+</html>
